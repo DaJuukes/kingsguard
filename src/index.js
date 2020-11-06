@@ -9,7 +9,7 @@ require('dotenv').config({ path: './env/.env' })
 const app = express()
 app.use(cors())
 app.use(express.static('./public'))
-const server = app.listen(process.env.PORT)
+const server = app.listen(process.env.PORT, onServerLoad)
 
 // Initialize websocket
 const wsServer = new ws.Server({ noServer: true })
@@ -22,3 +22,7 @@ server.on('upgrade', (request, socket, head) => {
     wsServer.emit('connection', socket, request)
   })
 })
+
+function onServerLoad() {
+  console.log("Server established on port " + process.env.PORT)
+}
