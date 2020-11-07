@@ -4,13 +4,30 @@ var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
 
+
+// Websocket interactions
+var webSocket = new WebSocket('ws://localhost:3000')
+
+webSocket.onopen = function (event) {
+    console.log("Connected")
+};
+
+webSocket.onmessage = function(event) {
+    console.log("WebSocket message received:", event.data);
+    game.move(event.data)
+    updateStatus()
+};
+
+webSocket.onclose = function (event) {
+    console.log("WebSocket closed.")
+}
+
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
   if (game.game_over()) return false
 
-  // only pick up pieces for the side to move
-  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-      (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+  // only pick up pieces for the White side
+  if (game.turn() === 'b') {
     return false
   }
 }
@@ -25,6 +42,7 @@ function onDrop (source, target) {
 
   // illegal move
   if (move === null) return 'snapback'
+  webSocket.send(game.history()[game.history().length-1])
 
   updateStatus()
 }
@@ -78,3 +96,4 @@ var config = {
 board = Chessboard('myBoard', config)
 
 updateStatus()
+
