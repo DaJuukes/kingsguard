@@ -25,12 +25,21 @@ wsServer.on('connection', socket => {
     chessGame.move(message); // TODO add illegal move checking
     chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
     chessGame.currTime = Date.now()
+
+    if (chessGame.in_checkmate() || chessGame.in_draw()) {
+      console.log('Game complete, sending full PGN')
+
+      socket.send(JSON.stringify(chessGame.moveTimestamps))
+    } else {
+
     let move = chessUtil.randomLegalMove(chessGame);
 
     chessGame.move(move)
     chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
     chessGame.currTime = Date.now()
     socket.send(move)
+
+    }
     })
 
 })

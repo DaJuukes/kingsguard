@@ -1,30 +1,44 @@
-var board = null
-var game = new Chess()
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
-function init() {
-    console.log('test')
-}
-
-var worker = new Worker('./js/stockfish.js')
-
+let board = null
+const game = new Chess()
+const $status = $('#status')
+const $fen = $('#fen')
+const $pgn = $('#pgn')
 
 // Websocket interactions
-var webSocket = new WebSocket('ws://localhost:3000')
+const webSocket = new WebSocket('ws://localhost:3000')
+
+// Focus tracker
+let outOfFocus = 0
+let focusBasket = 0
+game.focusTimes = []
 
 webSocket.onopen = function (event) {
-    console.log("Connected")
-};
+  console.log('Connected')
+}
 
-webSocket.onmessage = function(event) {
-    console.log("WebSocket message received:", event.data);
+webSocket.onmessage = function (event) {
+  console.log('WebSocket message received:', event.data)
+
+  if (event.data.startsWith('[')) {
+    let finalpgn = ''
+    game.focusTimes.shift()
+    const timestamps = JSON.parse(event.data)
+    for (let i = 0; i < game.history().length; i += 2) {
+      finalpgn += game.history()[i] + ' (' + timestamps[i] + 'ms, unfocused ' + game.focusTimes[i] + 'ms)'
+      if (game.history()[i + 1]) {
+        finalpgn += '  ' + game.history()[i + 1] + ' (' + timestamps[i + 1] + 'ms, unfocused ' + game.focusTimes[i + 1] + 'ms) <br />'
+      } else finalpgn += '<br />'
+    }
+    $pgn.html(finalpgn)
+  } // end of game timestamps
+  else {
     game.move(event.data)
     updateStatus()
-};
+  }
+}
 
 webSocket.onclose = function (event) {
-    console.log("WebSocket closed.")
+  console.log('WebSocket closed.')
 }
 
 function onDragStart (source, piece, position, orientation) {
@@ -39,7 +53,7 @@ function onDragStart (source, piece, position, orientation) {
 
 function onDrop (source, target) {
   // see if the move is legal
-  var move = game.move({
+  const move = game.move({
     from: source,
     to: target,
     promotion: 'q' // NOTE: always promote to a queen for example simplicity
@@ -47,7 +61,7 @@ function onDrop (source, target) {
 
   // illegal move
   if (move === null) return 'snapback'
-  webSocket.send(game.history()[game.history().length-1])
+  webSocket.send(game.history()[game.history().length - 1])
 
   updateStatus()
 }
@@ -59,9 +73,11 @@ function onSnapEnd () {
 }
 
 function updateStatus () {
-  var status = ''
+  let status = ''
+  game.focusTimes.push(focusBasket)
+  focusBasket = 0
 
-  var moveColor = 'White'
+  let moveColor = 'White'
   if (game.turn() === 'b') {
     moveColor = 'Black'
   }
@@ -91,7 +107,7 @@ function updateStatus () {
   $pgn.html(game.pgn())
 }
 
-var config = {
+const config = {
   draggable: true,
   position: 'start',
   onDragStart: onDragStart,
@@ -102,3 +118,13 @@ board = Chessboard('myBoard', config)
 
 updateStatus()
 
+function visibilityChange () {
+  if (document.visibilityState === 'hidden') {
+    // Track total time hidden in current move
+    outOfFocus = Date.now()
+  } else if (document.visibilityState === 'visible') {
+    focusBasket += (Date.now() - outOfFocus)
+  }
+}
+
+document.addEventListener('visibilitychange', visibilityChange)
