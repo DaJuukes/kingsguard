@@ -3,6 +3,11 @@ var game = new Chess()
 var $status = $('#status')
 var $fen = $('#fen')
 var $pgn = $('#pgn')
+function init() {
+    console.log('test')
+}
+
+var worker = new Worker('./js/stockfish.js')
 
 
 // Websocket interactions

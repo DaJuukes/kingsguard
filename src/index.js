@@ -18,16 +18,18 @@ const wsServer = new ws.Server({ noServer: true })
 wsServer.on('connection', socket => {
 
   let chessGame = new Chess()
-  
+  chessGame.currTime = Date.now()
+  chessGame.moveTimestamps = [] // [w1,b1,w2,b2]
   socket.on('message', message => {
     //Process move
-
     chessGame.move(message); // TODO add illegal move checking
-
+    chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
+    chessGame.currTime = Date.now()
     let move = chessUtil.randomLegalMove(chessGame);
 
     chessGame.move(move)
-
+    chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
+    chessGame.currTime = Date.now()
     socket.send(move)
     })
 
