@@ -11,18 +11,17 @@ require('dotenv').config({ path: './env/.env' })
 const app = express()
 app.use(cors())
 app.use(express.static('./public'))
-const server = app.listen(process.env.PORT, () => { console.log("Server established on port " + process.env.PORT) })
+const server = app.listen(process.env.PORT, () => { console.log('Server established on port ' + process.env.PORT) })
 
 // Initialize websocket
 const wsServer = new ws.Server({ noServer: true })
 wsServer.on('connection', socket => {
-
-  let chessGame = new Chess()
+  const chessGame = new Chess()
   chessGame.currTime = Date.now()
   chessGame.moveTimestamps = [] // [w1,b1,w2,b2]
   socket.on('message', message => {
-    //Process move
-    chessGame.move(message); // TODO add illegal move checking
+    // Process move
+    chessGame.move(message) // TODO add illegal move checking
     chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
     chessGame.currTime = Date.now()
 
@@ -31,21 +30,28 @@ wsServer.on('connection', socket => {
 
       socket.send(JSON.stringify(chessGame.moveTimestamps))
     } else {
+      const move = chessUtil.randomLegalMove(chessGame)
 
-    let move = chessUtil.randomLegalMove(chessGame);
-
-    chessGame.move(move)
-    chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
-    chessGame.currTime = Date.now()
-    socket.send(move)
-
+      chessGame.move(move)
+      chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
+      chessGame.currTime = Date.now()
+      socket.send(move)
     }
-    })
-
+  })
 })
 
 server.on('upgrade', (request, socket, head) => {
   wsServer.handleUpgrade(request, socket, head, socket => {
     wsServer.emit('connection', socket, request)
   })
+})
+
+app.get('/', function (req, res) {
+  res.sendFile('./index.html', { root: __dirname })
+})
+
+app.get('/analyze', function (req, res) {
+  // Engine analysis, consider long loading
+  console.log(req.query)
+  res.end('hello')
 })

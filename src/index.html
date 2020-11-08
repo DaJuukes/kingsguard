@@ -3,6 +3,7 @@
       <title>King's Guard</title>
       <link rel="icon" href="./img/king.png" type="image/x-icon">
     </head> 
+    <h2>Play Game</h2>
     <div id="myBoard" style="width: 400px"></div>
     <label>Status:</label>
     <div id="status"></div>
@@ -12,6 +13,9 @@
     <br />
     <label>PGN:</label>
     <div id="pgn"></div>
+
+    <button id="submit" hidden=true>Submit Game For Analysis</button>
+    <div id="load" hidden=true><img src="./img/loading.gif" style="height:32px; width:32px;" /> Loading...</div>
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
