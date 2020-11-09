@@ -1,6 +1,7 @@
 let board = null
 const game = new Chess()
 const $status = $('#status')
+const $statuses = $('#statuses')
 const $fen = $('#fen')
 const $pgn = $('#pgn')
 const $submit = $('#submit')
@@ -47,11 +48,10 @@ webSocket.onclose = function (event) {
 
 $submit.click(function () {
   // We can assume finalpgn and timestamps are populated from the websocket function
+  $statuses.hide()
   $submit.hide()
-  $fen.hide()
-  $pgn.hide()
   $load.show()
-  $.get('/analyze', { pgn: game.history(), moveTimes: timestamps, focusTimes: game.focusTimes }, function (data) {
+  $.get('/analyze', { pgn: game.pgn(), moveTimes: timestamps, focusTimes: game.focusTimes }, function (data) {
     console.log(data)
   })
 })

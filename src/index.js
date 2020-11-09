@@ -52,6 +52,23 @@ app.get('/', function (req, res) {
 
 app.get('/analyze', function (req, res) {
   // Engine analysis, consider long loading
-  console.log(req.query)
-  res.end('hello')
+  const { pgn, moveTimes, focusTimes } = req.query
+  console.log(pgn)
+  const game = new Chess()
+  game.load_pgn(pgn)
+
+  chessUtil.startEngine(game, moveTimes, focusTimes).then(moves => {
+    console.log(moves)
+    process.exit()
+  })
 })
+/*
+const { pgn, moveTimes, focusTimes } = { pgn: '1. e4 e5 2. d4 d5', moveTimes: [], focusTimes: [] }
+
+const game = new Chess()
+game.load_pgn(pgn)
+
+chessUtil.startEngine(game, moveTimes, focusTimes).then(moves => {
+  console.log(moves)
+  process.exit()
+}) */
