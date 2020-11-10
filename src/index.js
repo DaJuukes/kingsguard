@@ -14,11 +14,10 @@ app.use(express.static('./public'))
 const server = app.listen(process.env.PORT, () => { console.log('Server established on port ' + process.env.PORT) })
 
 // Initialize websocket
+/*
 const wsServer = new ws.Server({ noServer: true })
 wsServer.on('connection', socket => {
   const chessGame = new Chess()
-  chessGame.currTime = Date.now()
-  chessGame.moveTimestamps = [] // [w1,b1,w2,b2]
   socket.on('message', message => {
     // Process move
     chessGame.move(message) // TODO add illegal move checking
@@ -45,7 +44,7 @@ server.on('upgrade', (request, socket, head) => {
     wsServer.emit('connection', socket, request)
   })
 })
-
+ */
 app.get('/', function (req, res) {
   res.sendFile('./index.html', { root: __dirname })
 })
@@ -57,18 +56,9 @@ app.get('/analyze', function (req, res) {
   const game = new Chess()
   game.load_pgn(pgn)
 
-  chessUtil.startEngine(game, moveTimes, focusTimes).then(moves => {
+  chessUtil.startEngine(game).then(moves => {
     console.log(moves)
-    process.exit()
+    res.send(moves)
+    res.end()
   })
 })
-/*
-const { pgn, moveTimes, focusTimes } = { pgn: '1. e4 e5 2. d4 d5', moveTimes: [], focusTimes: [] }
-
-const game = new Chess()
-game.load_pgn(pgn)
-
-chessUtil.startEngine(game, moveTimes, focusTimes).then(moves => {
-  console.log(moves)
-  process.exit()
-}) */

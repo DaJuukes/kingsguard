@@ -4,20 +4,36 @@ const $status = $('#status')
 const $statuses = $('#statuses')
 const $fen = $('#fen')
 const $pgn = $('#pgn')
+const $finalpgn = $('#finalpgn')
 const $submit = $('#submit')
 const $load = $('#load')
+const $reset = $('#reset')
 
 // Websocket interactions
-const webSocket = new WebSocket('ws://localhost:3000')
+// const webSocket = new WebSocket('ws://localhost:3000')
 
 // Focus tracker
 let outOfFocus = 0
 let focusBasket = 0
-game.focusTimes = []
+let focusTimes = []
 
-let finalpgn = ''
+// Timestamps
+let moveStart = Date.now()
+
+const finalpgn = ''
 let timestamps = []
 
+const config = {
+  draggable: true,
+  position: 'start',
+  onDragStart: onDragStart,
+  onDrop: onDrop,
+  onSnapEnd: onSnapEnd
+}
+board = Chessboard('myBoard', config)
+
+updateStatus()
+/*
 webSocket.onopen = function (event) {
   console.log('Connected')
 }
@@ -37,23 +53,67 @@ webSocket.onmessage = function (event) {
     $pgn.html(finalpgn)
   } // end of game timestamps
   else {
-    game.move(event.data)
-    updateStatus()
+    // game.move(event.data)
+    // updateStatus()
   }
 }
 
 webSocket.onclose = function (event) {
   console.log('WebSocket closed.')
-}
+} */
 
 $submit.click(function () {
   // We can assume finalpgn and timestamps are populated from the websocket function
   $statuses.hide()
   $submit.hide()
   $load.show()
-  $.get('/analyze', { pgn: game.pgn(), moveTimes: timestamps, focusTimes: game.focusTimes }, function (data) {
+  $.get('/analyze', { pgn: game.pgn(), moveTimes: timestamps, focusTimes: focusTimes }, function (data) {
+    // Moves received in [{ move:, cp:}]
+    // Next step: display pgn with moved added as comments
     console.log(data)
+    let pgn = ''
+    const hist = game.history({ verbose: true })
+    console.log(hist)
+    for (let i = 0; i < hist.length; i++) {
+      console.log(data[i])
+      pgn += `${hist[i].from + hist[i].to} {E: ${data[i].move} ${data[i].cp}cp}`
+      if ((i % 2) === 1 && i > 0) pgn += '<br />'
+      else pgn += ' '
+    }
+    console.log(pgn)
+    $finalpgn.html(pgn)
+    $load.hide()
+    $finalpgn.show()
   })
+})
+
+$reset.click(function () {
+  console.log('Resetting...')
+
+  $pgn.html('')
+  $pgn.show()
+
+  $fen.html('')
+  $fen.show()
+
+  $finalpgn.html('')
+  $finalpgn.hide()
+
+  $load.hide()
+
+  $status.html('White to move')
+
+  $statuses.show()
+
+  timestamps = []
+  focusBasket = 0
+  outOfFocus = 0
+  focusTimes = []
+
+  moveStart = Date.now()
+
+  game.reset()
+  board.position(game.fen())
 })
 
 function onDragStart (source, piece, position, orientation) {
@@ -61,9 +121,9 @@ function onDragStart (source, piece, position, orientation) {
   if (game.game_over()) return false
 
   // only pick up pieces for the White side
-  if (game.turn() === 'b') {
+  /* if (game.turn() === 'b') {
     return false
-  }
+  } */
 }
 
 function onDrop (source, target) {
@@ -76,7 +136,10 @@ function onDrop (source, target) {
 
   // illegal move
   if (move === null) return 'snapback'
-  webSocket.send(game.history()[game.history().length - 1])
+
+  // webSocket.send(game.history()[game.history().length - 1])
+  timestamps.push(Date.now() - moveStart)
+  moveStart = Date.now()
 
   updateStatus()
 }
@@ -89,7 +152,7 @@ function onSnapEnd () {
 
 function updateStatus () {
   let status = ''
-  game.focusTimes.push(focusBasket)
+  focusTimes.push(focusBasket)
   focusBasket = 0
 
   let moveColor = 'White'
@@ -97,20 +160,16 @@ function updateStatus () {
     moveColor = 'Black'
   }
 
-  // checkmate?
   if (game.in_checkmate()) {
     status = 'Game over, ' + moveColor + ' is in checkmate.'
-    $submit.show()
-  }
-
-  // draw?
-  else if (game.in_draw()) {
+    endGame()
+  } else if (game.in_draw()) {
     status = 'Game over, drawn position'
-    $submit.show()
-  }
-
-  // game still on
-  else {
+    endGame()
+  } else if (game.game_over()) {
+    status = 'Game over due to repetition, resignation, etc'
+    endGame()
+  } else {
     status = moveColor + ' to move'
 
     // check?
@@ -124,16 +183,10 @@ function updateStatus () {
   $pgn.html(game.pgn())
 }
 
-const config = {
-  draggable: true,
-  position: 'start',
-  onDragStart: onDragStart,
-  onDrop: onDrop,
-  onSnapEnd: onSnapEnd
+function endGame () {
+  $submit.show()
+  $reset.show()
 }
-board = Chessboard('myBoard', config)
-
-updateStatus()
 
 function visibilityChange () {
   if (document.visibilityState === 'hidden') {
