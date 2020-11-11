@@ -52,13 +52,20 @@ app.get('/', function (req, res) {
 app.get('/analyze', function (req, res) {
   // Engine analysis, consider long loading
   const { pgn, moveTimes, focusTimes } = req.query
-  console.log(pgn)
+  console.log(moveTimes, focusTimes)
   const game = new Chess()
   game.load_pgn(pgn)
 
   chessUtil.startEngine(game).then(moves => {
-    console.log(moves)
-    res.send(moves)
+    const nMoves = []
+    const hist = game.history({ verbose: true })
+    for (let i = 0; i < hist.length; i++) {
+      nMoves.push({ move: hist[i].from + hist[i].to, enginemove: moves[i].move, cp: moves[i].cp })
+    }
+
+    const data = chessUtil.analyzeGame(nMoves, moveTimes, focusTimes)
+    res.send(data)
+    console.log('Sent data back.')
     res.end()
   })
 })

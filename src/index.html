@@ -3,6 +3,7 @@
       <title>King's Guard</title>
       <link rel="icon" href="./img/king.png" type="image/x-icon">
     </head> 
+  <div style="width:400px; float: left; background-color: green;">
     <h2>Play Game</h2>
     <div id="myBoard" style="width: 400px"></div>
     <div id="statuses">
@@ -16,9 +17,24 @@
      <div id="pgn"></div>
     </div>
     <div id="finalpgn" hidden=true></div>
+    
+    
     <button id="submit" hidden=true>Submit Game For Analysis</button>
-    <button id="reset" hidden=true>Reset Game</button>
-    <div id="load" hidden=true><img src="./img/loading.gif" style="height:32px; width:32px;" /> Loading...</div>
+
+    <button id="reset">Reset Game</button>
+  </div>
+  <div style="margin-left:400px">
+    <div style="width: 75%; display: table;" id="results">
+      <div style="display: table-row; height: 100px;">
+          <div style="width: 50%; display: table-cell;" id="whiteResults">
+          </div>
+          <div style="display: table-cell;" id="blackResults"> 
+          </div>
+      </div>
+    </div>
+  </div>
+
+    
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>

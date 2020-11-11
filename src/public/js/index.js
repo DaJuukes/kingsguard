@@ -8,6 +8,9 @@ const $finalpgn = $('#finalpgn')
 const $submit = $('#submit')
 const $load = $('#load')
 const $reset = $('#reset')
+const $results = $('#results')
+const $whiteResults = $('#whiteResults')
+const $blackResults = $('#blackResults')
 
 // Websocket interactions
 // const webSocket = new WebSocket('ws://localhost:3000')
@@ -68,22 +71,43 @@ $submit.click(function () {
   $submit.hide()
   $load.show()
   $.get('/analyze', { pgn: game.pgn(), moveTimes: timestamps, focusTimes: focusTimes }, function (data) {
-    // Moves received in [{ move:, cp:}]
-    // Next step: display pgn with moved added as comments
     console.log(data)
-    let pgn = ''
-    const hist = game.history({ verbose: true })
-    console.log(hist)
-    for (let i = 0; i < hist.length; i++) {
-      console.log(data[i])
-      pgn += `${hist[i].from + hist[i].to} {E: ${data[i].move} ${data[i].cp}cp}`
-      if ((i % 2) === 1 && i > 0) pgn += '<br />'
-      else pgn += ' '
-    }
-    console.log(pgn)
-    $finalpgn.html(pgn)
     $load.hide()
-    $finalpgn.show()
+
+    let wL = `<h3>White Results</h3>
+    Avg CPL: ${data.white.averageCpl}
+    <br /> Avg Time Spent: ${data.white.averageTime}
+    <br /> Avg Unfocus Time: ${data.white.averageFocus}
+    
+    <br /> Time Spent StDev: ${data.white.timeStdev}
+    <br /> Unfocus time StDev: ${data.white.focusStdev}
+    <br />
+    <br /> <b>Full move list:</b>`
+
+    for (let i = 0; i < data.white.finalMoves.length; i++) {
+      const move = data.white.finalMoves[i]
+      wL += `<br /> ${move.move} {Engine: ${move.enginemove}, CPL: ${move.cpl}, Time: ${move.moveTime}, Focus Time: ${move.focusTime}, Suspicion: ${move.suspicion}%}`
+    }
+
+    let bL = `<h3>Black Results</h3>
+    Avg CPL: ${data.black.averageCpl}
+    <br /> Avg Time Spent: ${data.black.averageTime}
+    <br /> Avg Unfocus Time: ${data.black.averageFocus}
+
+    <br /> Time Spent StDev: ${data.black.timeStdev}
+    <br /> Unfocus time StDev: ${data.black.focusStdev}
+    <br />
+    <br /> <b>Full move list:</b>`
+
+    for (let i = 0; i < data.black.finalMoves.length; i++) {
+      const move = data.black.finalMoves[i]
+      bL += `<br /> ${move.move} {Engine: ${move.enginemove}, CPL: ${move.cpl}, Time: ${move.moveTime}, Focus Time: ${move.focusTime}, Suspicion: ${move.suspicion}%}`
+    }
+
+    $whiteResults.html(wL)
+    $blackResults.html(bL)
+    console.log(wL)
+    console.log(bL)
   })
 })
 
@@ -104,6 +128,9 @@ $reset.click(function () {
   $status.html('White to move')
 
   $statuses.show()
+
+  $blackResults.html('')
+  $whiteResults.html('')
 
   timestamps = []
   focusBasket = 0
