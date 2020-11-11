@@ -3,37 +3,42 @@
       <title>King's Guard</title>
       <link rel="icon" href="./img/king.png" type="image/x-icon">
     </head> 
-  <div style="width:400px; float: left; background-color: green;">
-    <h2>Play Game</h2>
-    <div id="myBoard" style="width: 400px"></div>
-    <div id="statuses">
-      <label>Status:</label>
-      <div id="status"></div>
-      <br />
-      <label>FEN:</label>
-      <div id="fen"></div>
-      <br />
-      <label>PGN:</label>
-     <div id="pgn"></div>
-    </div>
-    <div id="finalpgn" hidden=true></div>
-    
-    
-    <button id="submit" hidden=true>Submit Game For Analysis</button>
+  <div style="width:100%;">
+    <div class="main-div" id="main-div">
+      <div style="width: 80%; margin: 0 auto;">
+        <center><h1>Play Game</h2></center>
+        <div id="myBoard" style="width: 100%;"></div>
 
-    <button id="reset">Reset Game</button>
-  </div>
-  <div style="margin-left:400px">
-    <div style="width: 75%; display: table;" id="results">
-      <div style="display: table-row; height: 100px;">
-          <div style="width: 50%; display: table-cell;" id="whiteResults">
-          </div>
-          <div style="display: table-cell;" id="blackResults"> 
-          </div>
+        <button id="reset" class="button">Reset Game</button>
+        <button id="submit" class="button-hidden" >Submit Game For Analysis</button>
+
+        <div id="statuses">
+          <label>Status:</label>
+          <div id="status"></div>
+          <br />
+          <label>FEN:</label>
+          <div id="fen"></div>
+          <br />
+          <label>PGN:</label>
+        <div id="pgn"></div>
+      </div>
+
+      
+
+      </div>
+    </div>
+
+    <div class="results-div-hidden" id="results">
+      <div style="width: 100%; display: table;" id="results">
+        <div style="display: table-row;">
+            <div style="width: 50%; display: table-cell;" id="whiteResults">
+            </div>
+            <div style="display: table-cell;" id="blackResults"> 
+            </div>
+        </div>
       </div>
     </div>
   </div>
-
     
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
@@ -43,6 +48,8 @@
       href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
       integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
       crossorigin="anonymous">
+
+    <link rel="stylesheet" href="./css/style.css">
 
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
       integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"

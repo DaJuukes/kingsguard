@@ -13,38 +13,6 @@ app.use(cors())
 app.use(express.static('./public'))
 const server = app.listen(process.env.PORT, () => { console.log('Server established on port ' + process.env.PORT) })
 
-// Initialize websocket
-/*
-const wsServer = new ws.Server({ noServer: true })
-wsServer.on('connection', socket => {
-  const chessGame = new Chess()
-  socket.on('message', message => {
-    // Process move
-    chessGame.move(message) // TODO add illegal move checking
-    chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
-    chessGame.currTime = Date.now()
-
-    if (chessGame.in_checkmate() || chessGame.in_draw()) {
-      console.log('Game complete, sending full PGN')
-
-      socket.send(JSON.stringify(chessGame.moveTimestamps))
-    } else {
-      const move = chessUtil.randomLegalMove(chessGame)
-
-      chessGame.move(move)
-      chessGame.moveTimestamps.push(Date.now() - chessGame.currTime)
-      chessGame.currTime = Date.now()
-      socket.send(move)
-    }
-  })
-})
-
-server.on('upgrade', (request, socket, head) => {
-  wsServer.handleUpgrade(request, socket, head, socket => {
-    wsServer.emit('connection', socket, request)
-  })
-})
- */
 app.get('/', function (req, res) {
   res.sendFile('./index.html', { root: __dirname })
 })

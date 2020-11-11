@@ -173,17 +173,22 @@ module.exports = {
 
         if (isNaN(cpi)) {
           // Mate, assign arbitrarily high number instead
-          if (x.cp.startsWith('-')) cpi = -2000
-          else cpi = 2000
-        }
-        if (isNaN(cpi2)) {
+          if (isNaN(cpi2)) {
+            // Mate continues to the next move, so cpl should be 0
+            x.cpl = 0
+          } else {
+            if (x.cp.startsWith('-')) cpi = -2000
+            else cpi = 2000
+          } // lost mate
+        } else if (isNaN(cpi2)) {
           // Mate, assign arbitrarily high number instead
           if (moves[i + 1].cp.startsWith('-')) cpi2 = -2000
           else cpi2 = 2000
         }
-
-        if (i % 2 === 0) x.cpl = (cpi - cpi2) // [current centipawn value - move chosen's centipawn value] = centipawn loss
-        else x.cpl = (cpi2 - cpi) // black's is reversed
+        if (!x.cpl) {
+          if (i % 2 === 0) x.cpl = (cpi - cpi2) // [current centipawn value - move chosen's centipawn value] = centipawn loss
+          else x.cpl = (cpi2 - cpi) // black's is reversed
+        }
 
         if (x.focusTime > 0 && (x.move === x.enginemove || x.cpl < 150)) {
           x.suspicion += 40
@@ -196,6 +201,8 @@ module.exports = {
         // last move can be pretty much ignored
         x.cpl = 0
       }
+
+      if (x.cpl < 0 || !x.cpl) x.cpl = 0
 
       if (i % 2 === 0) {
         white.finalMoves.push(x)

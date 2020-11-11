@@ -1,0 +1,46 @@
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+  }
+.button-hidden {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    display: none;
+    visibility: hidden;
+}  
+.main-div {
+    width:40%; 
+    margin-left:30%; 
+    background-color: lightgrey; 
+    float:left;
+}
+.main-div-results {
+    width: 40%;
+    background-color: lightgrey; 
+    float:left;
+}
+
+.results-div {
+    width:60%; 
+    margin-left:40%; 
+    background-color: lightgray; 
+}
+.results-div-hidden {
+    width: 60%;
+    margin-left:40%
+    background-color: lightgray; 
+    display: none;
+    visibility: hidden;
+}
